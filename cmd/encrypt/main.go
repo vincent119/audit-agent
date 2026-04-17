@@ -11,9 +11,8 @@ import (
 
 func main() {
     key := flag.String("key", "", "encryption key (required)")
-    plaintext := flag.String("plaintext", "", "plaintext to encrypt")
-    decrypt := flag.Bool("decrypt", false, "enable decrypt mode")
-    ciphertext := flag.String("ciphertext", "", "ciphertext to decrypt")
+    encrypt := flag.String("encrypt", "", "plaintext to encrypt")
+    decrypt := flag.String("decrypt", "", "ciphertext to decrypt")
     flag.Parse()
 
     if *key == "" {
@@ -21,29 +20,24 @@ func main() {
         os.Exit(1)
     }
 
-    if *decrypt {
-        if *ciphertext == "" {
-            fmt.Fprintln(os.Stderr, "error: -ciphertext is required in decrypt mode")
-            flag.Usage()
-            os.Exit(1)
-        }
-        result, err := crypto.Decrypt(*key, *ciphertext)
-        if err != nil {
-            fmt.Fprintf(os.Stderr, "decrypt failed: %v\n", err)
-            os.Exit(1)
-        }
-        fmt.Print(result)
-    } else {
-        if *plaintext == "" {
-            fmt.Fprintln(os.Stderr, "error: -plaintext is required in encrypt mode")
-            flag.Usage()
-            os.Exit(1)
-        }
-        result, err := crypto.Encrypt(*key, *plaintext)
+    switch {
+    case *encrypt != "":
+        result, err := crypto.Encrypt(*key, *encrypt)
         if err != nil {
             fmt.Fprintf(os.Stderr, "encrypt failed: %v\n", err)
             os.Exit(1)
         }
         fmt.Print(result)
+    case *decrypt != "":
+        result, err := crypto.Decrypt(*key, *decrypt)
+        if err != nil {
+            fmt.Fprintf(os.Stderr, "decrypt failed: %v\n", err)
+            os.Exit(1)
+        }
+        fmt.Print(result)
+    default:
+        fmt.Fprintln(os.Stderr, "error: -encrypt or -decrypt is required")
+        flag.Usage()
+        os.Exit(1)
     }
 }

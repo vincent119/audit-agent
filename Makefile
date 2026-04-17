@@ -12,8 +12,8 @@ build:
 
 build-encrypt:
 	@echo "Building encrypt tool..."
-	go build -ldflags="-s -w" -o $(BUILD_DIR)/encrypt ./cmd/encrypt/
-	@echo "Build complete: $(BUILD_DIR)/encrypt"
+	go build -ldflags="-s -w" -o $(BUILD_DIR)/encrypt-tools ./cmd/encrypt/
+	@echo "Build complete: $(BUILD_DIR)/encrypt-tools"
 
 test:
 	go test ./...

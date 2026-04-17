@@ -4,11 +4,11 @@
 [![Go Version](https://img.shields.io/badge/Go-1.25.6+-00ADD8?logo=go)](https://go.dev/)
 [![Runtime](https://img.shields.io/badge/Runtime-provided.al2023-FF9900?logo=amazonaws)](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html)
 
-**Language: English | [繁體中文](README.zh-TW.md)**
+**語言: [English](README.md) | 繁體中文**
 
-Receives AWS CloudTrail audit events via EventBridge and sends real-time notifications to Telegram, Slack, and Discord.
+接收 AWS CloudTrail 審計事件（透過 EventBridge），發送即時通知到 Telegram、Slack、Discord。
 
-## Architecture
+## 架構
 
 ```mermaid
 flowchart LR
@@ -21,31 +21,31 @@ flowchart LR
     Lambda --> DC[Discord Bot API]
 ```
 
-For detailed architecture diagrams, event flows, and ConsoleLogin routing, see:
+詳細架構圖、事件流程、ConsoleLogin 路由請參考：
 
-- [Architecture](docs/en/architecture.md) - System overview, event flow diagrams, ConsoleLogin routing, resource inventory
-- [EventBridge Rules](docs/en/eventbridge-rules.md) - Rule coverage, cross-region setup, Lambda permissions, IaC file structure
-- [IAM Policy](docs/en/iam-policy.md) - Lambda IAM Role, EventBridge Cross-Region IAM Role
+- [系統架構](docs/zh-TW/architecture.md) - 架構總覽、事件流程圖、ConsoleLogin 路由、資源清單
+- [EventBridge Rules](docs/zh-TW/eventbridge-rules.md) - Rule 涵蓋範圍、跨 Region 設定、Lambda Permissions、IaC 檔案結構
+- [IAM Policy](docs/zh-TW/iam-policy.md) - Lambda IAM Role、EventBridge Cross-Region IAM Role
 
-## Features
+## 功能特點
 
-- Multi-channel notifications (Telegram / Slack / Discord), flexibly configurable
-- AES-256-GCM encrypted tokens, key stored in SSM Parameter Store
-- i18n support (English / Traditional Chinese / Simplified Chinese)
-- Independent retry per channel (3 attempts, 10-second interval)
-- Structured logging (zlogger / JSON format)
+- 多頻道通知（Telegram / Slack / Discord），可彈性配置
+- AES-256-GCM 加密 Token，key 存放於 SSM Parameter Store
+- i18n 支援（英文 / 繁體中文 / 簡體中文）
+- 每個頻道獨立重試（3 次，間隔 10 秒）
+- 結構化日誌（zlogger / JSON 格式）
 
-## Quick Start
+## 快速開始
 
-### Prerequisites
+### 前置條件
 
 - Go 1.25.6+
-- AWS CLI configured
-- Pulumi CLI installed
-- EventBridge Rules created (see [EventBridge Rules](docs/en/eventbridge-rules.md))
-- SSM Parameter Store with ENCRYPTION_KEY (SecureString type)
+- AWS CLI 已配置
+- Pulumi CLI 已安裝
+- EventBridge Rules 已建立（參考 [EventBridge Rules](docs/zh-TW/eventbridge-rules.md)）
+- SSM Parameter Store 已建立 ENCRYPTION_KEY（SecureString 類型）
 
-### Build
+### 建置
 
 ```bash
 git clone https://github.com/vincent119/audit-notifier.git
@@ -53,19 +53,19 @@ cd audit-notifier
 make build
 ```
 
-### Encrypt Tokens
+### 加密 Token
 
 ```bash
-# Encrypt
+# 加密
 make encrypt ARGS="-key your-encryption-key -encrypt your-bot-token"
 
-# Decrypt to verify
+# 解密驗證
 make encrypt ARGS="-key your-encryption-key -decrypt encrypted-value"
 ```
 
-### Deploy
+### 部署
 
-Create a Pulumi project with the following `Pulumi.yaml` example:
+建立 Pulumi 專案時，可參考以下 `Pulumi.yaml` 範例：
 
 ```yaml
 name: audit-notifier
@@ -158,7 +158,7 @@ outputs:
   functionName: ${auditNotifierFunction.functionName}
 ```
 
-`Pulumi.dev.yaml` example:
+`Pulumi.dev.yaml` 範例：
 
 ```yaml
 config:
@@ -167,7 +167,7 @@ config:
   audit-notifier:ssmKeyPath: /audit-notifier/encryption-key
   audit-notifier:notifyChannels: telegram
   audit-notifier:tgToken:
-    secure: <encrypted-value>
+    secure: <加密後的值>
   audit-notifier:tgChatIds: ""
   audit-notifier:msgLang: zh-TW
   audit-notifier:logLevel: info
@@ -179,54 +179,54 @@ pulumi stack select dev
 pulumi up
 ```
 
-## Environment Variables
+## 環境變數
 
-| Variable | Description | Encrypted | Default |
+| 變數名 | 說明 | 加密 | 預設值 |
 |---|---|---|---|
-| `SSM_KEY_PATH` | Path to ENCRYPTION_KEY in SSM Parameter Store | No | None (required) |
-| `NOTIFY_CHANNELS` | Enabled channels (comma-separated) | No | None (required) |
-| `SLACK_TOKEN` | Slack Bot Token | AES encrypted | None |
-| `TG_TOKEN` | Telegram Bot Token | AES encrypted | None |
-| `DISCORD_TOKEN` | Discord Bot Token | AES encrypted | None |
-| `SLACK_CHAT_IDS` | Slack Channel IDs (comma-separated) | No | None |
-| `TG_CHAT_IDS` | Telegram Chat IDs (comma-separated) | No | None |
-| `DISCORD_CHAT_IDS` | Discord Channel IDs (comma-separated) | No | None |
-| `MSG_LANG` | Message language: `en`, `zh-TW`, `zh-CN` | No | `en` |
-| `HTTP_TIMEOUT` | HTTP Client timeout (seconds) | No | `10` |
-| `MESSAGE_MAX_LENGTH` | Max message length in characters (shared across all platforms) | No | `2000` |
-| `LOG_LEVEL` | Log level: debug, info, warn, error | No | `info` |
-| `TZ_ZONE` | Timezone for message display (IANA format) | No | `UTC` |
+| `SSM_KEY_PATH` | SSM Parameter Store 中 ENCRYPTION_KEY 的路徑 | 否 | 無（必填） |
+| `NOTIFY_CHANNELS` | 啟用的頻道清單（逗號分隔） | 否 | 無（必填） |
+| `SLACK_TOKEN` | Slack Bot Token | AES 加密 | 無 |
+| `TG_TOKEN` | Telegram Bot Token | AES 加密 | 無 |
+| `DISCORD_TOKEN` | Discord Bot Token | AES 加密 | 無 |
+| `SLACK_CHAT_IDS` | Slack 頻道 ID（逗號分隔） | 否 | 無 |
+| `TG_CHAT_IDS` | Telegram Chat ID（逗號分隔） | 否 | 無 |
+| `DISCORD_CHAT_IDS` | Discord Channel ID（逗號分隔） | 否 | 無 |
+| `MSG_LANG` | 訊息語言：`en`、`zh-TW`、`zh-CN` | 否 | `en` |
+| `HTTP_TIMEOUT` | HTTP Client timeout（秒） | 否 | `10` |
+| `MESSAGE_MAX_LENGTH` | 訊息最大字元數（所有平台共用） | 否 | `2000` |
+| `LOG_LEVEL` | 日誌級別：debug, info, warn, error | 否 | `info` |
+| `TZ_ZONE` | 訊息顯示的時區（IANA 格式） | 否 | `UTC` |
 
-## Project Structure
+## 專案結構
 
 ```
 audit-notifier/
 ├── cmd/
-│   ├── lambda/              # Lambda entry point
+│   ├── lambda/              # Lambda 進入點
 │   │   └── main.go
-│   └── encrypt/             # CLI encryption tool
+│   └── encrypt/             # CLI 加密工具
 │       └── main.go
 ├── docs/
-│   ├── en/                  # English documentation
+│   ├── en/                  # 英文文件
 │   │   ├── architecture.md
 │   │   ├── eventbridge-rules.md
 │   │   └── iam-policy.md
-│   └── zh-TW/              # Traditional Chinese documentation
+│   └── zh-TW/              # 繁體中文文件
 │       ├── architecture.md
 │       ├── eventbridge-rules.md
 │       └── iam-policy.md
 ├── internal/
-│   ├── crypto/              # AES encryption/decryption
+│   ├── crypto/              # AES 加解密
 │   │   ├── crypto.go
 │   │   └── crypto_test.go
-│   ├── event/               # CloudTrail event parsing
+│   ├── event/               # CloudTrail 事件解析
 │   │   ├── parser.go
 │   │   └── parser_test.go
-│   ├── message/             # Message template formatting
+│   ├── message/             # 訊息模板格式化
 │   │   ├── formatter.go
 │   │   ├── i18n.go
 │   │   └── formatter_test.go
-│   └── notifier/            # Notification senders (TG, Slack, Discord)
+│   └── notifier/            # 通知發送（TG, Slack, Discord）
 │       ├── notifier.go
 │       ├── telegram.go
 │       ├── slack.go
@@ -237,17 +237,17 @@ audit-notifier/
 └── go.sum
 ```
 
-## DLQ Recommendation
+## DLQ 建議
 
-It is recommended to configure an SQS Dead Letter Queue for the Lambda function to ensure events are not lost after EventBridge retries are exhausted. The SQS Queue can be added in the IaC project that deploys the Lambda.
+建議為 Lambda 設定 SQS Dead Letter Queue，確保 EventBridge 重試耗盡後事件不會丟失。可在部署 Lambda 的 IaC 專案中加入 SQS Queue 並設定為 Lambda 的 DLQ。
 
-## Known Limitations
+## 已知限制
 
-1. EventBridge at-least-once delivery may cause duplicate notifications, which is acceptable for audit scenarios
-2. Messages exceeding MESSAGE_MAX_LENGTH (default 2000 characters) will be truncated
-3. Lambda timeout should be at least 60 seconds (retry 3 x 10s = 30s)
-4. SSM GetParameter adds approximately 10-50ms latency during cold start
+1. EventBridge at-least-once delivery 可能導致重複通知，對於 audit 場景屬可接受行為
+2. 訊息超過 MESSAGE_MAX_LENGTH（預設 2000 字元）時會截斷
+3. Lambda timeout 建議至少 60 秒（重試 3 x 10s = 30s）
+4. SSM GetParameter 在 cold start 增加約 10-50ms 延遲
 
-## License
+## 授權
 
 [MIT](LICENSE)
